@@ -1,0 +1,17 @@
+{
+  "name": "Ma Tournée",
+  "short_name": "Tournée",
+  "description": "Application de gestion de tournée de livraison",
+  "start_url": "/matournee/",
+  "display": "standalone",
+  "background_color": "#0e0f14",
+  "theme_color": "#f0c040",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Delivery%20truck/3D/delivery_truck_3d.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
