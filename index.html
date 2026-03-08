@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ma Tournée">
+<meta name="theme-color" content="#0e0f14">
+<title>Ma Tournée 🚐</title>
+<style>
+:root{--bg:#0e0f14;--surf:#16181f;--card:#1c1f2a;--acc:#f0c040;--acc2:#e05a2b;--grn:#3ecf7a;--blu:#4a9eff;--pur:#a78bfa;--txt:#f0ede6;--muted:#6b7280;--bord:#2a2d38;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;padding-bottom:72px;overscroll-behavior:none;}
+input,textarea,select,button{font-family:inherit;}
+
+/* HEADER */
+.hdr{background:var(--surf);border-bottom:2px solid var(--acc);padding:12px 16px 10px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
+.hdr h1{font-size:1.1rem;font-weight:800;color:var(--acc);}
+.hdr-sub{font-size:0.6rem;color:var(--muted);font-family:monospace;}
+.stats{display:flex;gap:12px;}
+.stat-v{font-size:1.1rem;font-weight:800;color:var(--acc);font-family:monospace;line-height:1;text-align:center;}
+.stat-l{font-size:0.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;text-align:center;}
+.prog{height:3px;background:var(--bord);}
+.prog-bar{height:3px;background:var(--acc);transition:width .4s;}
+
+/* MAIN */
+main{padding:12px;max-width:600px;margin:0 auto;}
+
+/* BOXES */
+.box{background:var(--card);border:1px solid var(--bord);border-radius:14px;padding:14px;margin-bottom:12px;}
+.box-pur{background:linear-gradient(135deg,#1a1f35,#1c1f2a);border:1px solid var(--pur);border-radius:14px;padding:14px;margin-bottom:12px;}
+.box-blu{background:linear-gradient(135deg,#0f1a2e,#1c1f2a);border:1px solid var(--blu);border-radius:14px;padding:14px;margin-bottom:12px;}
+.box-title{font-size:0.75rem;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+
+/* INPUTS */
+input,textarea,select{background:var(--surf);border:1px solid var(--bord);border-radius:8px;color:var(--txt);font-size:0.8rem;padding:8px 10px;width:100%;outline:none;-webkit-appearance:none;}
+input:focus,textarea:focus,select:focus{border-color:var(--acc);}
+input::placeholder,textarea::placeholder{color:var(--muted);}
+textarea{resize:vertical;min-height:52px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.fg .full{grid-column:1/-1;}
+
+/* BUTTONS */
+.btn{border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.8rem;padding:9px 16px;white-space:nowrap;transition:transform .1s;}
+.btn:active{transform:scale(.96);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn-acc{background:var(--acc);color:#0e0f14;}
+.btn-grn{background:var(--grn);color:#0e0f14;}
+.btn-blu{background:var(--blu);color:#fff;}
+.btn-pur{background:var(--pur);color:#0e0f14;}
+.btn-red{background:var(--acc2);color:#fff;}
+.btn-out{background:transparent;border:1px solid var(--bord);color:var(--muted);}
+.btn-wa{background:#25d366;color:#fff;}
+.btn-xs{padding:4px 9px;font-size:0.66rem;border-radius:7px;}
+.btn-sm{padding:7px 13px;font-size:0.75rem;}
+.btn-full{width:100%;margin-top:8px;}
+
+/* SECTION TITLE */
+.st{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin:14px 0 8px;display:flex;align-items:center;gap:7px;}
+.st-line{flex:1;height:1px;background:var(--bord);}
+
+/* CLIENT CARD */
+.cc{background:var(--card);border:1px solid var(--bord);border-radius:13px;margin-bottom:9px;overflow:hidden;transition:border-color .2s;}
+.cc.cc-imp{border-color:var(--pur);box-shadow:0 0 10px rgba(167,139,250,.12);}
+.cc.cc-warn{border-color:var(--acc2);box-shadow:0 0 10px rgba(224,90,43,.14);}
+.cc.cc-absent{border-color:var(--acc2);}
+.cc.cc-done{opacity:.35;border-color:var(--grn);}
+.cc-top{display:flex;align-items:flex-start;gap:9px;padding:11px 11px 5px;}
+.cc-num{background:var(--acc);color:#0e0f14;border-radius:7px;font-family:monospace;font-size:.75rem;font-weight:700;min-width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cc-num.imp{background:var(--pur);}
+.cc-num.dn{background:var(--grn);}
+.cc-name{font-size:.88rem;font-weight:800;line-height:1.1;margin-bottom:1px;}
+.cc-addr{font-size:.68rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cc-time{font-family:monospace;font-size:.64rem;color:var(--acc);padding:0 11px 4px 48px;}
+.cc-time.warn{color:var(--acc2);}
+.cc-badges{display:flex;flex-wrap:wrap;gap:3px;padding:0 11px 5px 48px;}
+.bg{border-radius:4px;font-size:.58rem;font-weight:700;padding:2px 6px;text-transform:uppercase;}
+.bg-r{background:rgba(224,90,43,.2);color:var(--acc2);border:1px solid var(--acc2);}
+.bg-g{background:rgba(62,207,122,.15);color:var(--grn);border:1px solid var(--grn);}
+.bg-b{background:rgba(74,158,255,.15);color:var(--blu);border:1px solid var(--blu);}
+.bg-y{background:rgba(240,192,64,.15);color:var(--acc);border:1px solid var(--acc);}
+.bg-p{background:rgba(167,139,250,.15);color:var(--pur);border:1px solid var(--pur);}
+.cc-note{background:var(--surf);border-top:1px solid var(--bord);font-size:.68rem;color:var(--muted);padding:6px 11px;line-height:1.5;}
+.cc-note.imp{color:var(--acc2);border-top-color:var(--acc2);}
+.cc-actions{display:flex;gap:4px;padding:6px 11px 9px 48px;flex-wrap:wrap;}
+
+/* NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--bord);display:flex;justify-content:space-around;padding:6px 0 max(12px,env(safe-area-inset-bottom));z-index:100;}
+.nb{background:none;border:none;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;}
+.nb.active{color:var(--acc);}
+.nb svg{width:20px;height:20px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(16px);border-radius:20px;padding:9px 20px;font-weight:700;font-size:.8rem;z-index:999;pointer-events:none;opacity:0;transition:all .3s;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{background:var(--grn);color:#0e0f14;}
+.toast.err{background:var(--acc2);color:#fff;}
+
+/* MODAL */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;overflow-y:auto;padding:12px;}
+.modal.open{display:flex;flex-direction:column;align-items:center;}
+.modal-box{background:var(--surf);border:1px solid var(--bord);border-radius:16px;width:100%;max-width:500px;margin-top:8px;overflow:hidden;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--bord);}
+.modal-body{padding:14px;}
+
+/* RECAP */
+.rc-card{background:var(--card);border:1px solid var(--bord);border-radius:13px;padding:13px;margin-bottom:10px;}
+.rc-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--bord);font-size:.78rem;}
+.rc-row:last-child{border-bottom:none;}
+
+/* MSG */
+.msg-card{background:var(--card);border:1px solid var(--bord);border-radius:12px;margin-bottom:10px;overflow:hidden;}
+.msg-body-txt{background:var(--surf);border-top:1px solid var(--bord);padding:9px 13px;font-size:.72rem;line-height:1.6;white-space:pre-line;}
+
+/* SPINNER */
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,0,0,.2);border-top-color:#0e0f14;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:4px;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* IMPORT ITEM */
+.ii{background:var(--surf);border:1px solid var(--bord);border-radius:8px;padding:8px 10px;display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;}
+.ii input[type=checkbox]{width:16px;height:16px;margin-top:2px;accent-color:var(--acc);flex-shrink:0;}
+
+/* VIEWS */
+.view{display:none;}
+.view.active{display:block;}
+
+/* OPT RESULT */
+.opt-res{margin-top:10px;padding:8px 12px;background:rgba(167,139,250,.1);border:1px solid var(--pur);border-radius:8px;font-size:.7rem;color:var(--pur);line-height:1.5;display:none;}
+
+/* GUIDE */
+.guide-step{background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:12px;margin-bottom:8px;}
+.guide-num{background:var(--acc);color:#0e0f14;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;margin-right:8px;flex-shrink:0;}
+.guide-row{display:flex;align-items:flex-start;gap:0;}
+
+.empty{text-align:center;padding:32px 16px;color:var(--muted);}
+.empty-icon{font-size:2rem;margin-bottom:8px;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div>
+    <h1>🚐 Ma Tournée</h1>
+    <div class="hdr-sub" id="dateStr"></div>
+  </div>
+  <div class="stats">
+    <div><div class="stat-v" id="sTotal">0</div><div class="stat-l">Clients</div></div>
+    <div><div class="stat-v" id="sDone">0</div><div class="stat-l">Faits</div></div>
+    <div><div class="stat-v" id="sLeft">0</div><div class="stat-l">Restants</div></div>
+  </div>
+</div>
+<div class="prog"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
+
+<main>
+
+<!-- ══ VUE : TOURNÉE ══ -->
+<div class="view active" id="vTournee">
+
+  <!-- Optimiser -->
+  <div class="box-pur">
+    <div style="font-size:.85rem;font-weight:800;color:var(--pur);margin-bottom:3px;">🧠 Optimisation intelligente</div>
+    <div style="font-size:.68rem;color:var(--muted);margin-bottom:10px;line-height:1.4;">Géographie en priorité · <span style="color:var(--acc2)">🔴 Créneaux impératifs</span> verrouillés · Créneaux optionnels ignorés</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+      <input id="iVille" placeholder="Ville de départ" style="flex:1;min-width:110px;" value="">
+      <input id="iHeure" type="time" value="14:00" style="width:88px;flex:none;">
+      <button class="btn btn-pur btn-sm" id="btnOpt" onclick="optimiser()">✨ Optimiser</button>
+    </div>
+    <div class="opt-res" id="optRes"></div>
+  </div>
+
+  <!-- Import + Ajouter -->
+  <div style="display:flex;gap:8px;margin-bottom:12px;">
+    <button class="btn btn-blu" style="flex:1;font-size:.75rem;" onclick="openImport()">📋 Importer via Claude</button>
+    <button class="btn btn-acc" style="flex:1;font-size:.75rem;" id="btnToggleForm" onclick="toggleForm()">➕ Ajouter</button>
+  </div>
+
+  <!-- Formulaire ajout -->
+  <div class="box" id="addForm" style="display:none;">
+    <div class="box-title">➕ Nouveau client</div>
+    <div class="fg">
+      <input class="full" id="fNom" placeholder="Nom client">
+      <input class="full" id="fAddr" placeholder="Adresse complète (numéro, rue, ville)">
+      <input id="fTel" type="tel" placeholder="Téléphone">
+      <input id="fCren" placeholder="Créneau (ex: 18h-21h)">
+      <select id="fType">
+        <option value="Collecte">Collecte</option>
+        <option value="Livraison">Livraison</option>
+        <option value="Collecte + Livraison">Collecte + Livraison</option>
+      </select>
+      <select id="fAcces">
+        <option value="libre">✅ Accès libre</option>
+        <option value="present">👤 Présence requise</option>
+        <option value="creneau_imp">🔴 Créneau IMPÉRATIF</option>
+      </select>
+      <textarea class="full" id="fNotes" placeholder="Notes : code, étage, interphone, sonnette..."></textarea>
+      <input id="fPoids" placeholder="Poids (ex: 3.5 kg)">
+    </div>
+    <button class="btn btn-acc btn-full" onclick="ajouterClient()">Ajouter à la tournée</button>
+  </div>
+
+  <div id="listeTodo"></div>
+  <div id="listeDone"></div>
+
+</div>
+
+<!-- ══ VUE : MESSAGES ══ -->
+<div class="view" id="vMessages">
+  <div class="box">
+    <div class="box-title">Client destinataire</div>
+    <select id="msgSel" onchange="renderMessages()">
+      <option value="">— Choisir un client —</option>
+    </select>
+  </div>
+  <div id="msgList"></div>
+</div>
+
+<!-- ══ VUE : CONTACTS ══ -->
+<div class="view" id="vContacts">
+  <div id="contactsList"></div>
+</div>
+
+<!-- ══ VUE : RÉCAP ══ -->
+<div class="view" id="vRecap">
+  <div id="recapContent"></div>
+</div>
+
+<!-- ══ VUE : GUIDE ══ -->
+<div class="view" id="vGuide">
+  <div class="box-blu" style="margin-bottom:12px;">
+    <div style="font-size:.9rem;font-weight:800;color:var(--blu);margin-bottom:4px;">📖 Comment utiliser chaque jour</div>
+    <div style="font-size:.7rem;color:var(--muted);line-height:1.5;">Ton app de tournée — 100% offline, données sauvegardées sur ton téléphone</div>
+  </div>
+
+  <div class="st"><span>Chaque matin — nouvelle tournée</span><div class="st-line"></div></div>
+
+  <div class="guide-step">
+    <div class="guide-row"><span class="guide-num">1</span><div>
+      <div style="font-weight:800;font-size:.85rem;margin-bottom:3px;">Ouvre Claude sur ton téléphone</div>
+      <div style="font-size:.72rem;color:var(--muted);line-height:1.5;">Va sur <strong style="color:var(--blu)">claude.ai</strong> dans ton navigateur ou l'app Claude. Ouvre une <strong>nouvelle conversation</strong>.</div>
+    </div></div>
+  </div>
+
+  <div class="guide-step">
+    <div class="guide-row"><span class="guide-num">2</span><div>
+      <div style="font-weight:800;font-size:.85rem;margin-bottom:3px;">Envoie ta photo de feuille</div>
+      <div style="font-size:.72rem;color:var(--muted);line-height:1.5;">Clique sur le 📎 dans Claude, prends la photo de ta feuille de tournée, puis envoie ce message exact :</div>
+      <div style="background:var(--bg);border:1px solid var(--bord);border-radius:7px;padding:8px 10px;margin-top:6px;font-size:.72rem;color:var(--txt);line-height:1.5;font-style:italic;" id="promptCopy">
+        "Extrais tous les clients de cette feuille en JSON. Pour chaque client : nom, adresse, tel, creneau, acces (libre/present/creneau_imp), type, notes, poids. Réponds UNIQUEMENT avec le JSON."
+      </div>
+      <button class="btn btn-acc btn-xs" style="margin-top:6px;" onclick="copyPrompt()">📋 Copier ce message</button>
+    </div></div>
+  </div>
+
+  <div class="guide-step">
+    <div class="guide-row"><span class="guide-num">3</span><div>
+      <div style="font-weight:800;font-size:.85rem;margin-bottom:3px;">Copie le JSON que Claude te donne</div>
+      <div style="font-size:.72rem;color:var(--muted);line-height:1.5;">Claude va te répondre avec un JSON. Appuie longuement → <strong>Tout sélectionner</strong> → <strong>Copier</strong>.</div>
+    </div></div>
+  </div>
+
+  <div class="guide-step">
+    <div class="guide-row"><span class="guide-num">4</span><div>
+      <div style="font-weight:800;font-size:.85rem;margin-bottom:3px;">Reviens ici → Importer via Claude</div>
+      <div style="font-size:.72rem;color:var(--muted);line-height:1.5;">Clique sur <strong style="color:var(--blu)">📋 Importer via Claude</strong>, colle le JSON, valide. Tous tes clients apparaissent en 5 secondes !</div>
+    </div></div>
+  </div>
+
+  <div class="guide-step">
+    <div class="guide-row"><span class="guide-num">5</span><div>
+      <div style="font-weight:800;font-size:.85rem;margin-bottom:3px;">Optimise ta tournée</div>
+      <div style="font-size:.72rem;color:var(--muted);line-height:1.5;">Entre ta ville de départ et l'heure, clique <strong style="color:var(--pur)">✨ Optimiser</strong>. L'ordre géographique optimal est calculé automatiquement.</div>
+    </div></div>
+  </div>
+
+  <div class="st" style="margin-top:20px;"><span>En cours de tournée</span><div class="st-line"></div></div>
+
+  <div class="guide-step">
+    <div style="font-size:.8rem;font-weight:800;margin-bottom:6px;">⚡ Actions rapides sur chaque client</div>
+    <div style="font-size:.72rem;color:var(--muted);line-height:1.8;">
+      ✅ <strong>Fait</strong> — marque le client comme traité<br>
+      📞 <strong>Appeler</strong> — appel direct en un clic<br>
+      🗺️ <strong>Y aller</strong> — ouvre Waze (mobile) ou Google Maps<br>
+      💬 <strong>Message</strong> — envoie SMS ou WhatsApp pré-rédigé<br>
+      👻 <strong>Absent</strong> — marque comme absent<br>
+    </div>
+  </div>
+
+  <div class="guide-step">
+    <div style="font-size:.8rem;font-weight:800;margin-bottom:4px;">🔴 Créneaux impératifs</div>
+    <div style="font-size:.72rem;color:var(--muted);line-height:1.5;">Les clients en rouge ont un créneau qu'il FAUT respecter. L'app t'avertit si tu risques d'arriver trop tôt ou trop tard.</div>
+  </div>
+
+  <div class="st" style="margin-top:20px;"><span>Fin de tournée</span><div class="st-line"></div></div>
+  <div class="guide-step">
+    <div style="font-size:.8rem;font-weight:800;margin-bottom:4px;">🗑️ Réinitialiser pour le lendemain</div>
+    <div style="font-size:.72rem;color:var(--muted);line-height:1.5;">Dans l'onglet <strong>Récap</strong>, clique <strong>Réinitialiser</strong> pour effacer la tournée du jour et repartir à zéro le lendemain.</div>
+  </div>
+
+  <div class="box" style="margin-top:16px;border-color:var(--acc);">
+    <div style="font-size:.8rem;font-weight:800;color:var(--acc);margin-bottom:6px;">💡 Ajouter l'app sur ton écran d'accueil</div>
+    <div style="font-size:.72rem;color:var(--muted);line-height:1.6;">
+      <strong style="color:var(--txt);">iPhone (Safari) :</strong><br>
+      Partager → "Sur l'écran d'accueil" → Ajouter<br><br>
+      <strong style="color:var(--txt);">Android (Chrome) :</strong><br>
+      Menu ⋮ → "Ajouter à l'écran d'accueil" → Ajouter
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="nb active" id="nbTournee" onclick="showView('Tournee')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 16l4.553-2.276A1 1 0 0021 19.882V9.118a1 1 0 00-.553-.894L15 6m0 17V6m0 0L9 3"/></svg>
+    Tournée
+  </button>
+  <button class="nb" id="nbMessages" onclick="showView('Messages')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+    Messages
+  </button>
+  <button class="nb" id="nbContacts" onclick="showView('Contacts')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.948V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 8V5z"/></svg>
+    Contacts
+  </button>
+  <button class="nb" id="nbRecap" onclick="showView('Recap')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    Récap
+  </button>
+  <button class="nb" id="nbGuide" onclick="showView('Guide')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    Guide
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ MODAL IMPORT ══ -->
+<div class="modal" id="importModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div style="font-size:.9rem;font-weight:800;color:var(--blu);">📋 Importer via Claude</div>
+      <button class="btn btn-out btn-xs" onclick="closeImport()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="importStep1">
+        <div style="background:var(--card);border:1px solid var(--bord);border-radius:9px;padding:10px 12px;font-size:.73rem;color:var(--muted);margin-bottom:12px;line-height:1.6;">
+          <strong style="color:var(--txt);display:block;margin-bottom:4px;">📖 Mode d'emploi</strong>
+          1. Ouvre <strong style="color:var(--blu)">Claude</strong> sur ton téléphone<br>
+          2. Envoie ta photo de feuille + le message du <strong>Guide</strong><br>
+          3. Copie le JSON que Claude te répond<br>
+          4. Colle-le ci-dessous ↓
+        </div>
+        <textarea id="importTxt" placeholder='Colle ici le JSON de Claude...' style="min-height:130px;font-family:monospace;font-size:.72rem;margin-bottom:8px;"></textarea>
+        <div id="importErr" style="color:var(--acc2);font-size:.72rem;margin-bottom:8px;display:none;"></div>
+        <button class="btn btn-blu btn-full" onclick="parseImport()">🔍 Analyser</button>
+      </div>
+      <div id="importStep2" style="display:none;">
+        <div style="font-size:.75rem;color:var(--pur);font-weight:700;margin-bottom:8px;" id="importCount"></div>
+        <div id="importList" style="max-height:320px;overflow-y:auto;margin-bottom:10px;"></div>
+        <div style="display:flex;gap:7px;">
+          <button class="btn btn-acc" style="flex:1;" onclick="doImport()" id="btnImport">✅ Importer</button>
+          <button class="btn btn-out btn-xs" onclick="resetImport()">↩️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
+let clients = [];
+let importParsed = [];
+let importSel = [];
+let msgCId = null;
+const STORE_KEY = 'matournee_v5';
+
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(clients)); } catch(e){} }
+function load() { try { const d = localStorage.getItem(STORE_KEY); if(d) clients = JSON.parse(d); } catch(e){} }
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+document.getElementById('dateStr').textContent = new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+load();
+renderAll();
+
+// ═══════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════
+function getDep() { return document.getElementById('iHeure').value || '14:00'; }
+function getVille() { return document.getElementById('iVille').value.trim() || 'Paris'; }
+
+function estH(i) {
+  const [h,m] = getDep().split(':').map(Number);
+  const t = h*60+m+50+i*17;
+  return String(Math.floor(t/60)%24).padStart(2,'0')+'h'+String(t%60).padStart(2,'0');
+}
+function parseMin(cr) {
+  const m=(cr||'').match(/(\d{1,2})h(\d{0,2})/);
+  return m?+m[1]*60+(+m[2]||0):null;
+}
+function crWarn(c,i) {
+  if(c.acces!=='creneau_imp'||!c.creneau) return null;
+  const [h,m]=getDep().split(':').map(Number);
+  const est=h*60+m+50+i*17, d=parseMin(c.creneau);
+  if(!d) return null;
+  if(est<d) return `Trop tôt ~${d-est}min`;
+  if(est>d+180) return `Trop tard ~${est-d-180}min`;
+  return null;
+}
+function openNav(addr) {
+  const e=encodeURIComponent(addr);
+  const mob=/iPhone|iPad|Android/.test(navigator.userAgent);
+  window.open(mob?`https://waze.com/ul?q=${e}&navigate=yes`:`https://www.google.com/maps/dir/?api=1&destination=${e}`,'_blank');
+}
+function doCall(tel) { window.location.href='tel:'+tel.replace(/[\s.()]/g,''); }
+
+function showToast(msg,err=false) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+(err?'err':'ok');
+  setTimeout(()=>t.className='toast',2700);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// VIEWS
+// ═══════════════════════════════════════════════════════════════════
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('v'+name).classList.add('active');
+  document.getElementById('nb'+name).classList.add('active');
+  if(name==='Messages') renderMessages();
+  if(name==='Contacts') renderContacts();
+  if(name==='Recap') renderRecap();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FORM
+// ═══════════════════════════════════════════════════════════════════
+function toggleForm() {
+  const f=document.getElementById('addForm');
+  const open=f.style.display==='block';
+  f.style.display=open?'none':'block';
+  document.getElementById('btnToggleForm').textContent=open?'➕ Ajouter':'✕ Fermer';
+}
+
+function ajouterClient(data) {
+  const nom=(data?.nom||document.getElementById('fNom').value).trim();
+  const addr=(data?.adresse||document.getElementById('fAddr').value).trim();
+  if(!nom||!addr){showToast('Nom et adresse obligatoires !',true);return false;}
+  clients.push({
+    id:Date.now()+Math.random(),
+    nom, adresse:addr,
+    tel:(data?.tel||document.getElementById('fTel').value||'').trim(),
+    creneau:(data?.creneau||document.getElementById('fCren').value||'').trim(),
+    type:data?.type||document.getElementById('fType').value,
+    acces:data?.acces||document.getElementById('fAcces').value,
+    notes:(data?.notes||document.getElementById('fNotes').value||'').trim(),
+    poids:(data?.poids||document.getElementById('fPoids').value||'').trim(),
+    ordre:clients.length+1, done:false, absent:false
+  });
+  save();
+  if(!data){
+    ['fNom','fAddr','fTel','fCren','fNotes','fPoids'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('fType').value='Collecte';
+    document.getElementById('fAcces').value='libre';
+    showToast('✅ Client ajouté !');
+  }
+  renderAll();
+  return true;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════════════
+function toggleDone(id) {
+  const c=clients.find(c=>c.id===id);
+  if(c){c.done=!c.done;c.absent=false;}
+  save(); renderAll();
+}
+function toggleAbsent(id) {
+  const c=clients.find(c=>c.id===id);
+  if(c){c.absent=!c.absent;c.done=false;}
+  save(); renderAll();
+}
+function delClient(id) {
+  if(!confirm('Supprimer ce client ?')) return;
+  clients=clients.filter(c=>c.id!==id).map((c,i)=>({...c,ordre:i+1}));
+  save(); renderAll();
+}
+function openMsg(id) { msgCId=id; showView('Messages'); }
+
+// ═══════════════════════════════════════════════════════════════════
+// OPTIMISER
+// ═══════════════════════════════════════════════════════════════════
+async function optimiser() {
+  if(clients.length<2){showToast('Ajoute au moins 2 clients !',true);return;}
+  const btn=document.getElementById('btnOpt');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span>En cours...';
+  const data=clients.map((c,i)=>({index:i,nom:c.nom,adresse:c.adresse,creneau:c.creneau||null,acces:c.acces}));
+  const prompt=`Optimise cette tournée de collecte de linge en Île-de-France.
+RÈGLES : 1) Géographie PRIORITAIRE : regroupe adresses proches. 2) acces="creneau_imp" = créneau IMPÉRATIF : positionne selon heure estimée (départ ${getDep()} de ${getVille()}, ~50min 1er client, ~17min/client). 3) acces="libre" ou "present" : IGNORER le créneau.
+CLIENTS: ${JSON.stringify(data)}
+Réponds UNIQUEMENT JSON sans markdown : {"ordre":[index0,index1,...],"explication":"2 phrases max","alertes":["si problème créneau..."]}`;
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:prompt}]})
+    });
+    const json=await res.json();
+    if(json.error) throw new Error(json.error.message);
+    const raw=json.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    const r=JSON.parse(raw);
+    clients=r.ordre.map((idx,pos)=>({...clients[idx],ordre:pos+1}));
+    save(); renderAll();
+    const div=document.getElementById('optRes');
+    div.innerHTML=(r.explication||'')+(r.alertes?.length?' | ⚠️ '+r.alertes.join(' | '):'');
+    div.style.display='block';
+    showToast('✨ Tournée optimisée !');
+  } catch(e){ showToast('Erreur : '+e.message,true); }
+  finally{ btn.disabled=false; btn.innerHTML='✨ Optimiser'; }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// IMPORT
+// ═══════════════════════════════════════════════════════════════════
+function openImport() { document.getElementById('importModal').classList.add('open'); }
+function closeImport() {
+  document.getElementById('importModal').classList.remove('open');
+  resetImport(); document.getElementById('importTxt').value='';
+}
+function resetImport() {
+  document.getElementById('importStep1').style.display='block';
+  document.getElementById('importStep2').style.display='none';
+  document.getElementById('importErr').style.display='none';
+  importParsed=[]; importSel=[];
+}
+function parseImport() {
+  const txt=document.getElementById('importTxt').value.trim();
+  const errDiv=document.getElementById('importErr');
+  errDiv.style.display='none';
+  try {
+    const json=JSON.parse(txt);
+    const list=Array.isArray(json)?json:(json.clients||[]);
+    if(!list.length){errDiv.textContent='Aucun client trouvé.';errDiv.style.display='block';return;}
+    importParsed=list; importSel=list.map((_,i)=>i);
+    document.getElementById('importCount').textContent=`✨ ${list.length} clients détectés — coche ceux à importer :`;
+    const container=document.getElementById('importList');
+    container.innerHTML=list.map((c,i)=>`
+      <div class="ii">
+        <input type="checkbox" id="ic${i}" checked onchange="toggleImportSel(${i},this.checked)">
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:.8rem;">${c.nom||'?'}</div>
+          <div style="font-size:.66rem;color:var(--muted);">${c.adresse||''}</div>
+          <div style="font-size:.62rem;color:var(--blu);margin-top:2px;">
+            ${c.tel?'📞 '+c.tel+' · ':''}${c.creneau?'🕐 '+c.creneau+' · ':''}${c.type||'Collecte'}
+            ${c.acces==='creneau_imp'?'<span style="color:var(--acc2);"> · 🔴 IMPÉRATIF</span>':''}
+          </div>
+          ${c.notes?`<div style="font-size:.6rem;color:var(--muted);margin-top:2px;">📌 ${c.notes}</div>`:''}
+        </div>
+      </div>`).join('');
+    document.getElementById('importStep1').style.display='none';
+    document.getElementById('importStep2').style.display='block';
+  } catch(e){
+    errDiv.textContent='JSON invalide. Copie exactement ce que Claude t\'a donné.';
+    errDiv.style.display='block';
+  }
+}
+function toggleImportSel(i,checked) {
+  if(checked) importSel=[...new Set([...importSel,i])];
+  else importSel=importSel.filter(x=>x!==i);
+  document.getElementById('btnImport').textContent=`✅ Importer (${importSel.length})`;
+}
+function doImport() {
+  let count=0;
+  importSel.forEach(i=>{ if(ajouterClient(importParsed[i])) count++; });
+  closeImport();
+  showToast(`✅ ${count} client${count>1?'s':''} importé${count>1?'s':''}!`);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER ALL
+// ═══════════════════════════════════════════════════════════════════
+function renderAll() {
+  const todo=clients.filter(c=>!c.done);
+  const done=clients.filter(c=>c.done);
+  const total=clients.length, dc=done.length;
+  document.getElementById('sTotal').textContent=total;
+  document.getElementById('sDone').textContent=dc;
+  document.getElementById('sLeft').textContent=total-dc;
+  document.getElementById('progBar').style.width=total?(dc/total*100)+'%':'0%';
+  renderTodo(todo);
+  renderDone(done);
+}
+
+function renderTodo(todo) {
+  const ctr=document.getElementById('listeTodo');
+  if(!todo.length){ctr.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><p style="font-size:.8rem;line-height:1.6;">Aucun client.<br>Clique <strong>📋 Importer via Claude</strong><br>ou <strong>➕ Ajouter</strong>.</p></div>`;return;}
+  let html=`<div class="st"><span>À faire — ${todo.length} client${todo.length>1?'s':''}</span><div class="st-line"></div></div>`;
+  todo.forEach((c,i)=>{
+    const imp=c.acces==='creneau_imp';
+    const w=crWarn(c,i);
+    let cls='cc';
+    if(c.absent) cls+=' cc-absent';
+    else if(imp&&w) cls+=' cc-warn';
+    else if(imp) cls+=' cc-imp';
+    html+=`<div class="${cls}">
+      <div class="cc-top">
+        <div class="cc-num ${imp?'imp':''}">${c.ordre}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="cc-name">${c.nom}</div>
+          <div class="cc-addr">${c.adresse}</div>
+        </div>
+      </div>
+      <div class="cc-time ${w?'warn':''}">⏱ Passage estimé : ${estH(i)}${w?' — ⚠️ '+w:''}</div>
+      <div class="cc-badges">
+        ${c.creneau?`<span class="bg ${imp?'bg-r':'bg-b'}">${imp?'🔴 IMPÉRATIF':'🕐'} ${c.creneau}</span>`:''}
+        ${c.acces==='libre'?'<span class="bg bg-g">✅ Libre</span>':''}
+        ${c.poids?`<span class="bg bg-y">⚖️ ${c.poids}</span>`:''}
+        ${c.absent?'<span class="bg bg-r">ABSENT</span>':''}
+        <span class="bg bg-b">${c.type}</span>
+      </div>
+      ${c.notes?`<div class="cc-note ${imp?'imp':''}">📌 ${c.notes}</div>`:''}
+      <div class="cc-actions">
+        <button class="btn btn-grn btn-xs" onclick="toggleDone(${JSON.stringify(c.id)})">✅ Fait</button>
+        ${c.tel?`<button class="btn btn-blu btn-xs" onclick="doCall(${JSON.stringify(c.tel)})">📞</button>`:''}
+        <button class="btn btn-acc btn-xs" onclick="openNav(${JSON.stringify(c.adresse)})">🗺️ Y aller</button>
+        ${c.tel?`<button class="btn btn-pur btn-xs" onclick="openMsg(${JSON.stringify(c.id)})">💬</button>`:''}
+        <button class="btn btn-out btn-xs" onclick="toggleAbsent(${JSON.stringify(c.id)})">${c.absent?'↩️':'👻'}</button>
+        <button class="btn btn-red btn-xs" onclick="delClient(${JSON.stringify(c.id)})">🗑️</button>
+      </div>
+    </div>`;
+  });
+  ctr.innerHTML=html;
+}
+
+function renderDone(done) {
+  const ctr=document.getElementById('listeDone');
+  if(!done.length){ctr.innerHTML='';return;}
+  let html=`<div class="st"><span>Terminés — ${done.length}</span><div class="st-line"></div></div>`;
+  done.forEach(c=>{
+    html+=`<div class="cc cc-done" style="display:flex;align-items:center;gap:9px;padding:9px 11px;">
+      <div class="cc-num dn">✓</div>
+      <div style="flex:1;"><div style="font-size:.85rem;font-weight:700;text-decoration:line-through;">${c.nom}</div><div style="font-size:.66rem;color:var(--muted);">${c.adresse}</div></div>
+      <button class="btn btn-out btn-xs" onclick="toggleDone(${JSON.stringify(c.id)})">↩️</button>
+    </div>`;
+  });
+  ctr.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MESSAGES
+// ═══════════════════════════════════════════════════════════════════
+const MSGS=[
+  {id:'collecte',icon:'👕',label:'Confirmation collecte',sub:"S'assurer que le client sera présent",
+   body:(n,h)=>`Bonjour ${n},\n\nJe suis votre chauffeur pour la collecte de votre linge.\nJe passerai chez vous ${h?'vers '+h:'dans la journée'}.\n\nPouvez-vous confirmer votre présence ?\n\nMerci 🙂`},
+  {id:'livraison',icon:'📦',label:'Confirmation livraison',sub:"Prévenir de la livraison du linge propre",
+   body:(n,h)=>`Bonjour ${n},\n\nJe vous apporte votre linge propre ${h?'vers '+h:'dans la journée'}.\n\nMerci d'être disponible.\n\nÀ tout à l'heure ! 😊`},
+  {id:'hors',icon:'⏰',label:'Passage hors créneau',sub:"Prévenir d'un passage à une heure différente",
+   body:(n,h)=>`Bonjour ${n},\n\nExceptionnellement aujourd'hui je passerai ${h?'vers '+h:'à un horaire différent'}, en dehors de votre créneau habituel.\n\nSeriez-vous disponible ?\n\nMerci de votre compréhension 🙏`},
+  {id:'absent',icon:'📮',label:'Client absent',sub:"Informer que personne n'était là",
+   body:(n)=>`Bonjour ${n},\n\nJe suis passé mais vous étiez absent(e).\nJ'ai laissé votre linge à l'endroit habituel.\n\nN'hésitez pas à me contacter.\nBonne journée 🙏`},
+  {id:'retard',icon:'🕐',label:'Retard de passage',sub:"Prévenir d'un retard",
+   body:(n,h)=>`Bonjour ${n},\n\nJe serai légèrement en retard.\nJe passerai ${h?'vers '+h:'un peu plus tard que prévu'}.\n\nDésolé pour ce contretemps 🙏`},
+  {id:'bac',icon:'🧺',label:'Rappel bac de linge',sub:"Rappeler de préparer le bac",
+   body:(n)=>`Bonjour ${n},\n\nJe passerai aujourd'hui pour votre linge.\nMerci de préparer votre bac à l'avance.\n\nÀ tout à l'heure ! 😊`},
+];
+
+function renderMessages() {
+  const actifs=clients.filter(c=>!c.done);
+  const sel=document.getElementById('msgSel');
+  const curVal=msgCId||sel.value;
+  sel.innerHTML='<option value="">— Choisir un client —</option>'+actifs.map(c=>`<option value="${c.id}" ${String(c.id)===String(curVal)?'selected':''}>${c.ordre}. ${c.nom}${c.tel?' · '+c.tel:' · ⚠️ pas de tél'}</option>`).join('');
+  if(msgCId) sel.value=msgCId;
+  const selC=clients.find(c=>String(c.id)===String(sel.value));
+  const selIdx=actifs.findIndex(c=>String(c.id)===String(sel.value));
+  const selH=selIdx>=0?estH(selIdx):'';
+  const selNom=selC?selC.nom.split(' ').slice(-1)[0]:'cher client';
+  const ctr=document.getElementById('msgList');
+  if(!selC){ctr.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem;">Sélectionne un client pour voir les messages</div>';return;}
+  ctr.innerHTML=MSGS.map(tpl=>{
+    const txt=tpl.body(selNom,selH);
+    const isHC=tpl.id==='hors'&&selC&&crWarn(selC,selIdx)!==null;
+    return `<div class="msg-card" style="${isHC?'border-color:var(--acc2);':''}">
+      <div style="padding:10px 13px 6px;">
+        <div style="font-size:.75rem;font-weight:800;color:var(--acc);">${tpl.icon} ${tpl.label}${isHC?'<span style="color:var(--acc2);font-size:.58rem;margin-left:5px;">⚠️ Recommandé</span>':''}</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-top:1px;">${tpl.sub}</div>
+      </div>
+      <div class="msg-body-txt">${txt}</div>
+      <div style="display:flex;gap:6px;padding:8px 13px 11px;flex-wrap:wrap;">
+        ${selC.tel
+          ?`<button class="btn btn-grn btn-sm" onclick="sendSMS(${JSON.stringify(selC.tel)},${JSON.stringify(txt)})">📱 SMS</button>
+             <button class="btn btn-wa btn-sm" onclick="sendWA(${JSON.stringify(selC.tel)},${JSON.stringify(txt)})">💬 WhatsApp</button>`
+          :`<span style="font-size:.68rem;color:var(--acc2);">⚠️ Pas de téléphone</span>`}
+        <button class="btn btn-out btn-sm" onclick="copyTxt(${JSON.stringify(txt)})">📋 Copier</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function sendSMS(tel,txt){window.open(`sms:${tel.replace(/[\s.]/g,'')}?body=${encodeURIComponent(txt)}`,'_blank');}
+function sendWA(tel,txt){const t=tel.replace(/[\s.\-]/g,'').replace(/^0/,'+33');window.open(`https://wa.me/${t}?text=${encodeURIComponent(txt)}`,'_blank');}
+async function copyTxt(txt){try{await navigator.clipboard.writeText(txt);showToast('📋 Copié !');}catch(e){showToast('Copie manuelle',true);}}
+
+// ═══════════════════════════════════════════════════════════════════
+// CONTACTS
+// ═══════════════════════════════════════════════════════════════════
+function renderContacts(){
+  const actifs=clients.filter(c=>!c.done);
+  const ctr=document.getElementById('contactsList');
+  if(!actifs.length){ctr.innerHTML='<div class="empty"><div class="empty-icon">🎉</div><p style="font-size:.8rem;">Tournée terminée !</p></div>';return;}
+  const sections=[
+    {label:'🔴 Créneaux impératifs',list:actifs.filter(c=>c.acces==='creneau_imp'&&c.tel)},
+    {label:'👻 Absents',list:actifs.filter(c=>c.absent&&c.tel)},
+    {label:'📞 Contacts',list:actifs.filter(c=>c.tel&&c.acces!=='creneau_imp'&&!c.absent)},
+    {label:'📵 Sans téléphone',list:actifs.filter(c=>!c.tel)},
+  ];
+  let html='';
+  sections.forEach(({label,list})=>{
+    if(!list.length) return;
+    html+=`<div class="st"><span>${label}</span><div class="st-line"></div></div>`;
+    list.forEach(c=>{
+      const idx=actifs.findIndex(cl=>cl.id===c.id);
+      const w=crWarn(c,idx);
+      html+=`<div class="rc-card" style="${c.acces==='creneau_imp'?'border-color:var(--acc2);':''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px;">
+          <div style="font-weight:800;font-size:.88rem;">${c.ordre}. ${c.nom}</div>
+          ${w?`<span style="font-size:.6rem;color:var(--acc2);font-weight:700;">⚠️ ${w}</span>`:''}
+        </div>
+        <div style="font-size:.68rem;color:var(--muted);margin-bottom:5px;">${c.adresse}</div>
+        ${c.creneau?`<div style="font-size:.68rem;color:${c.acces==='creneau_imp'?'var(--acc2)':'var(--muted)'};margin-bottom:6px;">${c.acces==='creneau_imp'?'🔴':'🕐'} ${c.creneau}</div>`:''}
+        ${c.notes?`<div style="font-size:.65rem;color:var(--muted);margin-bottom:7px;">📌 ${c.notes}</div>`:''}
+        <div style="display:flex;gap:5px;flex-wrap:wrap;">
+          ${c.tel?`<button class="btn btn-blu btn-sm" onclick="doCall(${JSON.stringify(c.tel)})">📞 ${c.tel}</button>`:''}
+          <button class="btn btn-acc btn-sm" onclick="openNav(${JSON.stringify(c.adresse)})">🗺️ Y aller</button>
+          ${c.tel?`<button class="btn btn-pur btn-sm" onclick="openMsg(${JSON.stringify(c.id)})">💬 Message</button>`:''}
+        </div>
+      </div>`;
+    });
+  });
+  ctr.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RECAP
+// ═══════════════════════════════════════════════════════════════════
+function renderRecap(){
+  const ctr=document.getElementById('recapContent');
+  const total=clients.length,done=clients.filter(c=>c.done).length;
+  const imps=clients.filter(c=>c.acces==='creneau_imp');
+  const poids=clients.filter(c=>c.poids);
+  const actifs=clients.filter(c=>!c.done);
+  const left=total-done;
+  let html=`<div class="st"><span>Résumé</span><div class="st-line"></div></div>
+  <div class="rc-card">
+    ${[['Total clients',total,'var(--acc)'],['✅ Faits',done,'var(--grn)'],['⏳ Restants',left,'var(--acc)'],['👻 Absents',clients.filter(c=>c.absent).length,'var(--acc2)'],['🔴 Créneaux impératifs',imps.length,'var(--acc2)'],['🏁 Fin estimée',left>0?estH(left+2):'--','var(--pur)']]
+    .map(([l,v,col],i,arr)=>`<div class="rc-row" style="${i===arr.length-1?'border-bottom:none;':''}"><span style="color:var(--muted);">${l}</span><span style="font-weight:700;color:${col};">${v}</span></div>`).join('')}
+  </div>`;
+  if(poids.length){
+    html+=`<div class="st"><span>⚖️ Poids collectés</span><div class="st-line"></div></div><div class="rc-card">`;
+    poids.forEach((c,i,arr)=>{html+=`<div class="rc-row" style="${i===arr.length-1?'border-bottom:none;':''}"><span style="color:var(--muted);">${c.nom}</span><span style="font-weight:700;">${c.poids}</span></div>`;});
+    html+=`</div>`;
+  }
+  if(imps.length){
+    html+=`<div class="st"><span>🔴 Créneaux impératifs</span><div class="st-line"></div></div><div class="rc-card">`;
+    imps.forEach((c,i,arr)=>{
+      const idx=actifs.findIndex(cl=>cl.id===c.id);
+      const w=crWarn(c,idx>=0?idx:0);
+      html+=`<div class="rc-row" style="${i===arr.length-1?'border-bottom:none;':''}"><span style="color:var(--muted);font-size:.76rem;">${c.nom}<br><small style="font-size:.64rem;">${c.creneau}</small></span><span style="font-weight:700;color:${w?'var(--acc2)':'var(--grn)'};font-size:.72rem;">${w?'⚠️ '+w:'✅ OK'}</span></div>`;
+    });
+    html+=`</div>`;
+  }
+  html+=`<button class="btn btn-red btn-full" style="margin-top:4px;" onclick="resetTournee()">🗑️ Réinitialiser pour demain</button>`;
+  ctr.innerHTML=html;
+}
+
+function resetTournee(){
+  if(!confirm('Effacer toute la tournée du jour ?')) return;
+  clients=[];save();renderAll();showToast('Tournée réinitialisée ✅');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// GUIDE - COPY PROMPT
+// ═══════════════════════════════════════════════════════════════════
+function copyPrompt(){
+  const txt=`Extrais tous les clients de cette feuille en JSON. Pour chaque client retourne : nom, adresse, tel, creneau (ex: "18h-21h"), acces ("libre" si accès libre, "creneau_imp" si note en rouge dit CRÉNEAU HORAIRE, sinon "present"), type ("Collecte"/"Livraison"), notes (accès, code, étage, interphone), poids (si noté en manuscrit). Réponds UNIQUEMENT avec le JSON : {"clients":[...]}`;
+  navigator.clipboard.writeText(txt).then(()=>showToast('📋 Message copié !')).catch(()=>showToast('Copie manuelle',true));
+}
+</script>
+</body>
+</html>
